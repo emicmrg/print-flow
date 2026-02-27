@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Printer Fast Connect</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="panel hero">
+        <p class="kicker">HP Deskjet 2800 / F422CE</p>
+        <h1>Conexión Rápida de Impresora</h1>
+        <p class="subtitle">
+          Diagnostica latencia de red y activa un modo de conexión persistente para reducir la espera antes de imprimir.
+        </p>
+      </section>
+
+      <section class="panel controls">
+        <form id="printer-form">
+          <label>
+            Host o IP de la impresora
+            <input id="host" name="host" type="text" placeholder="ej. 192.168.1.84" list="host-list" required />
+            <datalist id="host-list"></datalist>
+          </label>
+          <label>
+            Intervalo Fast Path (segundos)
+            <input id="interval" name="interval" type="number" min="8" max="120" value="25" required />
+          </label>
+          <div class="row-actions">
+            <button id="btn-auto" type="button">Autodetectar</button>
+            <button id="btn-diagnose" type="submit">Diagnosticar</button>
+            <button id="btn-start" type="button">Activar Fast Path</button>
+            <button id="btn-paper" type="button" class="secondary">Revisar Papel</button>
+            <button id="btn-stop" type="button" class="secondary">Detener Fast Path</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel metrics">
+        <div class="metric-card">
+          <span>Score Conexión</span>
+          <strong id="score">-</strong>
+        </div>
+        <div class="metric-card">
+          <span>DNS (ms)</span>
+          <strong id="dns-ms">-</strong>
+        </div>
+        <div class="metric-card">
+          <span>Ping Promedio</span>
+          <strong id="ping-ms">-</strong>
+        </div>
+        <div class="metric-card">
+          <span>Puerto Más Rápido</span>
+          <strong id="fastest-port">-</strong>
+        </div>
+        <div class="metric-card">
+          <span>Papel</span>
+          <strong id="paper-status">-</strong>
+        </div>
+      </section>
+
+      <section class="panel print-panel">
+        <h2>Impresión Directa</h2>
+        <form id="print-form">
+          <label>
+            Archivo a imprimir
+            <input id="print-file" name="print-file" type="file" required />
+          </label>
+          <label>
+            Copias
+            <input id="copies" name="copies" type="number" min="1" max="30" value="1" required />
+          </label>
+          <label>
+            Cola/Nombre impresora (opcional)
+            <input id="printer-name" name="printer-name" type="text" placeholder="ej. HP_Deskjet_2800" list="queue-list" />
+            <datalist id="queue-list"></datalist>
+          </label>
+          <label>
+            Orientación
+            <select id="opt-orientation" name="opt-orientation">
+              <option value="">Auto</option>
+              <option value="portrait">Vertical</option>
+              <option value="landscape">Horizontal</option>
+              <option value="reverse-portrait">Vertical invertida</option>
+              <option value="reverse-landscape">Horizontal invertida</option>
+            </select>
+          </label>
+          <label>
+            Tamaño de hoja
+            <select id="opt-page-size" name="opt-page-size">
+              <option value="">Auto</option>
+            </select>
+          </label>
+          <label>
+            Color
+            <select id="opt-color" name="opt-color">
+              <option value="">Auto</option>
+              <option value="color">Color</option>
+              <option value="mono">Blanco y negro</option>
+            </select>
+          </label>
+          <label>
+            Bandeja/Fuente de papel
+            <select id="opt-input-slot" name="opt-input-slot">
+              <option value="">Auto</option>
+            </select>
+          </label>
+          <label>
+            Caras de hoja
+            <select id="opt-sides" name="opt-sides">
+              <option value="">Auto</option>
+            </select>
+          </label>
+          <div class="row-actions">
+            <button id="btn-print" type="submit">Mandar a Imprimir</button>
+          </div>
+        </form>
+        <p class="hint">
+          Nota: el envío usa la cola del sistema (`lp`/`lpr` en Linux/macOS o PowerShell en Windows). Si no pasas nombre de cola, usa la predeterminada del equipo.
+        </p>
+      </section>
+
+      <section class="panel split">
+        <div>
+          <h2>Puertos de impresión</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Puerto</th>
+                <th>Estado</th>
+                <th>Tiempo (ms)</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody id="ports-table"></tbody>
+          </table>
+        </div>
+
+        <div>
+          <h2>Recomendaciones</h2>
+          <ul id="tips-list" class="tips-list"></ul>
+          <h2>Estado Fast Path</h2>
+          <pre id="fast-path-state" class="state-box">Sin sesión activa.</pre>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Actividad</h2>
+        <div id="log" class="log"></div>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "printer-ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interfaz local para diagnosticar y acelerar la conexión con impresoras Wi-Fi.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
