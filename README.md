@@ -1,8 +1,8 @@
-# Printer UI - Fast Connect
+# PrintFlow Console
 
 Interfaz local para diagnosticar por qué una impresora Wi-Fi tarda en empezar a imprimir y para mantener la conexión "caliente" con probes periódicos.
 
-Pensado para tu caso de **HP Deskjet 2800 series (F422CE)**, pero funciona con otras impresoras en red.
+Funciona con impresoras en red configuradas en CUPS o accesibles por IP.
 
 ## Qué hace
 

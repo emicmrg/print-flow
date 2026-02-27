@@ -18,6 +18,9 @@ const portsTable = document.querySelector("#ports-table");
 const tipsList = document.querySelector("#tips-list");
 const fastPathState = document.querySelector("#fast-path-state");
 const logEl = document.querySelector("#log");
+const chipConnection = document.querySelector("#chip-connection");
+const chipPaper = document.querySelector("#chip-paper");
+const chipQueue = document.querySelector("#chip-queue");
 
 const printFileInput = document.querySelector("#print-file");
 const copiesInput = document.querySelector("#copies");
@@ -47,6 +50,14 @@ function log(message) {
   entry.className = "entry";
   entry.innerHTML = `<span class="time">[${stamp()}]</span> ${message}`;
   logEl.prepend(entry);
+}
+
+function setChip(chip, text, tone = "neutral") {
+  if (!chip) {
+    return;
+  }
+  chip.textContent = text;
+  chip.dataset.tone = tone;
 }
 
 function setLoading(isLoading) {
@@ -98,18 +109,22 @@ function renderTips(tips) {
 function renderPaperStatus(data) {
   if (!data || !data.paper) {
     paperStatusEl.textContent = "n/a";
+    setChip(chipPaper, "Papel: sin datos", "neutral");
     return;
   }
   const { paper } = data;
   if (paper.paperState === "paper_ok") {
     paperStatusEl.textContent = "Con papel";
+    setChip(chipPaper, `Papel: OK (${paper.source || "n/a"})`, "good");
     return;
   }
   if (paper.paperState === "no_paper") {
     paperStatusEl.textContent = "Sin papel";
+    setChip(chipPaper, `Papel: vacío (${paper.source || "n/a"})`, "bad");
     return;
   }
   paperStatusEl.textContent = "Desconocido";
+  setChip(chipPaper, `Papel: desconocido (${paper.source || "n/a"})`, "warn");
 }
 
 function renderFastPath(session) {
@@ -162,6 +177,18 @@ function renderDiagnostics(result) {
 
   renderPorts(result.tcp);
   renderTips(result.recommendations);
+
+  if (typeof result.score === "number") {
+    if (result.score >= 85) {
+      setChip(chipConnection, `Conexión: estable (${result.score})`, "good");
+    } else if (result.score >= 60) {
+      setChip(chipConnection, `Conexión: media (${result.score})`, "warn");
+    } else {
+      setChip(chipConnection, `Conexión: degradada (${result.score})`, "bad");
+    }
+  } else {
+    setChip(chipConnection, "Conexión: sin diagnóstico", "neutral");
+  }
 }
 
 function clearAndSeedSelect(selectElement, autoLabel = "Auto") {
@@ -279,6 +306,7 @@ function applyPrinterSelection(printer, fromAutoDetect = false) {
     hostInput.value = printer.host;
   }
   printerNameInput.value = printer.name;
+  setChip(chipQueue, `Cola: ${printer.name}`, "good");
   if (fromAutoDetect) {
     log(`Autodetectada cola <b>${printer.name}</b>${printer.host ? ` en host <b>${printer.host}</b>` : ""}.`);
   }
@@ -291,6 +319,7 @@ async function detectSystemPrinters(shouldAutofill = true) {
 
   if (printersCache.length === 0) {
     log("No se detectaron colas CUPS en el sistema.");
+    setChip(chipQueue, "Cola: no detectada", "warn");
     return;
   }
 
@@ -330,6 +359,7 @@ async function refreshPaperStatus() {
     return { ok: true, result: data.result };
   } catch (error) {
     paperStatusEl.textContent = "Desconocido";
+    setChip(chipPaper, "Papel: error de consulta", "bad");
     if (String(error.message || "").includes("API route no encontrada")) {
       log("Estado de papel no disponible en el backend activo. Reinicia `npm start` y recarga con Ctrl+Shift+R.");
       return { ok: false, routeMissing: true };
@@ -524,6 +554,7 @@ printForm.addEventListener("submit", async (event) => {
     });
     const queueLabel = data.result.queue ? `cola <b>${data.result.queue}</b>` : "cola predeterminada";
     log(`Trabajo enviado por <b>${data.result.method}</b> a ${queueLabel}.`);
+    setChip(chipQueue, `Cola: ${data.result.queue || "predeterminada"}`, "good");
     if (data.result.note) {
       log(`Nota: ${data.result.note}`);
     }
@@ -544,7 +575,11 @@ printForm.addEventListener("submit", async (event) => {
 });
 
 seedFallbackPrintOptions();
+setChip(chipConnection, "Conexión: pendiente", "neutral");
+setChip(chipPaper, "Papel: pendiente", "neutral");
+setChip(chipQueue, "Cola: sin seleccionar", "neutral");
 refreshFastPath();
 detectSystemPrinters(true).catch((error) => {
   log(`Autodetección inicial no disponible: ${error.message}`);
+  setChip(chipQueue, "Cola: autodetección no disponible", "warn");
 });
